@@ -3,6 +3,8 @@ var WebSocket = require('ws');
 var Promise = require('bluebird');
 Promise.promisifyAll(request);
 
+var ws;
+
 function Wootalk() {
 
 };
@@ -11,7 +13,7 @@ Wootalk.prototype.connect = function(callback) {
 	request
 		.get('https://wootalk.today/', function(error, response, body) {
 			wootalk_session = response.headers['set-cookie'][0].match(/_wootalk_session=(\w+)/)[1];
-			this.ws = new WebSocket('wss://wootalk.today/websocket', [], {
+			ws = new WebSocket('wss://wootalk.today/websocket', [], {
 				headers: {
 					'Host': 'wootalk.today',
 					'Origin': 'https://wootalk.today',
@@ -27,19 +29,46 @@ Wootalk.prototype.connect = function(callback) {
 				}
 			});
 
-			this.ws.on('open', function() {
+			ws.on('open', function() {
 				console.log('connected!');
 			});
-			this.ws.on('message', function(message) {
+			ws.on('message', function(message) {
 				console.log(message);
 			});
 
-			this.ws.on('close', function() {
+			ws.on('close', function() {
 				console.log('disconnected');
 			});
 
 		});
 
 };
+
+var extract = function(msg) {
+
+};
+
+Wootalk.prototype.chat = function(userid, msg, msg_id) {
+	ws.send(["new_message", {
+		"id": userid,
+		"data": {
+			"message": msg,
+			"msg_id": (msg_id || 1)
+		}
+	}]);
+};
+
+Wootalk.prototype.leave = function() {
+	ws.send(["change_person", {}]);
+};
+
+Wootalk.prototype.typing = function() {
+	ws.send(["update_state", {
+		"id": 127190,
+		"data": {
+			"typing": true
+		}
+	}])
+}
 
 exports.Wootalk = Wootalk;
