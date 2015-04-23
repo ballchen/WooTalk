@@ -6,10 +6,114 @@ Promise.promisifyAll(request);
 var ws;
 
 function Wootalk() {
+	this.msg_id = 0;
+	this.user_id = null;
+}
 
+
+var Randomize = function() {
+	return Math.floor((Math.random() * 100000) + 50000);
 };
 
-Wootalk.prototype.connect = function(callback) {
+var pong = function() {
+	a = Randomize();
+	console.log("pong with id: " + a);
+	ws.send(["websocket_rails.pong", {
+		"id": a,
+		"data": {}
+	}]);
+};
+
+var chat = function(msg) {
+	this.msg_id += 1;
+	ws.send(["new_message", {
+		"id": Randomize(),
+		"data": {
+			"message": msg,
+			"msg_id": (this.msg_id || 1)
+		}
+	}]);
+
+	console.log('[回應訊息] ' + msg + '    id: ' + this.msg_id);
+};
+
+var leave = function() {
+	ws.send(["change_person", {}]);
+};
+
+var typing = function() {
+	ws.send(["update_state", {
+		"id": 127190,
+		"data": {
+			"typing": true
+		}
+	}]);
+};
+
+var extract = function(message) {
+	var pa = JSON.parse(message)[0]; //parse
+	var ev = pa[0]; //event名字
+	/*
+		client_connected, new_message, websocket_rails.ping, update_state
+	*/
+	var msg = pa[1]['data']['message'];
+	var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
+	var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
+	/*
+		上述三項在不同ev下會undefined
+		對方離開了不會再收到ping
+		這時要change_person或disconnected
+		不然不久後會自動disconnected
+	*/
+
+	console.log('\n目前該執行指令:');
+	if (ev == 'new_message') {
+		if (sender == 2) {
+
+			setTimeout(function() {
+				chat('安安你好！給約嗎？');
+			}, 3000);
+
+			console.log('  回對方訊息');
+		} else if (!sender && leave) {
+			//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
+			//change person 或 disconnected
+			leave();
+			console.log('  change person of disconnected');
+		} else {
+			//sender == undefined 是初始系統訊息
+			if (!this.user_id) {
+				/*有兩種初始系統提示訊息
+				"message":"最新消息、吾聊愛情故事、尋人?! 請至.."
+				"message":"找個人聊天..."
+				前者給的user_id是正確值, 後者給的是null
+				避免這兩者有先後順序問題影響取正確值, 故設此if branch
+				*/
+				this.user_id = pa[1]['user_id'];
+				//在初期取得user_id後就不再更動
+			}
+			console.log('  初始系統提示訊息');
+		}
+	} else if (ev == 'update_state') {
+
+		console.log('  do something');
+	} else if (ev == 'websocket_rails.ping') {
+		//pong
+		pong()
+
+	} else if (ev == 'client_connected') {
+		console.log('  初始連線成功訊息')
+	}
+	console.log('變數表:');
+	console.log('ev:\n  ' + ev);
+	console.log('user_id:\n  ' + this.user_id);
+	console.log('msg:\n  ' + msg);
+	console.log('sender:\n  ' + sender);
+	console.log('leave:\n  ' + leave);
+	console.log(' ');
+};
+
+Wootalk.prototype.connect = function connect(callback) {
 	request
 		.get('https://wootalk.today/', function(error, response, body) {
 			wootalk_session = response.headers['set-cookie'][0].match(/_wootalk_session=(\w+)/)[1];
@@ -33,7 +137,7 @@ Wootalk.prototype.connect = function(callback) {
 				console.log('connected!');
 			});
 			ws.on('message', function(message) {
-				console.log(message);
+				extract(message);
 			});
 
 			ws.on('close', function() {
@@ -44,31 +148,6 @@ Wootalk.prototype.connect = function(callback) {
 
 };
 
-var extract = function(msg) {
 
-};
-
-Wootalk.prototype.chat = function(userid, msg, msg_id) {
-	ws.send(["new_message", {
-		"id": userid,
-		"data": {
-			"message": msg,
-			"msg_id": (msg_id || 1)
-		}
-	}]);
-};
-
-Wootalk.prototype.leave = function() {
-	ws.send(["change_person", {}]);
-};
-
-Wootalk.prototype.typing = function() {
-	ws.send(["update_state", {
-		"id": 127190,
-		"data": {
-			"typing": true
-		}
-	}])
-}
 
 exports.Wootalk = Wootalk;
