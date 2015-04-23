@@ -1,0 +1,15 @@
+{
+  "name": "Wootalk",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.9.24",
+    "request": "^2.55.0"
+  },
+  "devDependencies": {}
+}
