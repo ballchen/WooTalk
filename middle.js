@@ -65,6 +65,8 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
+			pa[1]['data']['sender'] = 1;//新增這行
+			message = JSON.stringify(pa);//新增這行
 			console.log(message)
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」")
@@ -117,6 +119,8 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
+			pa[1]['data']['sender'] = 1;//新增這行
+			message = JSON.stringify(pa);//新增這行
 			console.log(message)
 			if (sender == 2) {
 				console.log("B：「 " + msg + " 」")
