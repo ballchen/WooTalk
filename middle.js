@@ -65,9 +65,9 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
-			pa[1]['data']['sender'] = 1;//新增這行
-			message = JSON.stringify(pa);//新增這行
-			console.log(message)
+			pa[1]['data']['sender'] = 1; //新增這行
+			message = JSON.stringify(pa); //新增這行
+			// console.log(message)
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」")
 				wsB.send(message);
@@ -119,12 +119,12 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
-			pa[1]['data']['sender'] = 1;//新增這行
-			message = JSON.stringify(pa);//新增這行
-			console.log(message)
+			pa[1]['data']['sender'] = 1; //新增這行
+			message = JSON.stringify(pa); //新增這行
+			// console.log(message)
 			if (sender == 2) {
 				console.log("B：「 " + msg + " 」")
-				wsB.send(message);
+				wsA.send(message);
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
