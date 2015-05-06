@@ -140,7 +140,3 @@ Wootalk.prototype.connect = function connect(callback) {
 		});
 
 };
-
-
-
-exports.Wootalk = Wootalk;
