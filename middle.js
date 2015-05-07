@@ -71,6 +71,22 @@ async.parallel([
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」")
 				wsB.send(message);
+				process.stdin.setEncoding('utf8');
+				process.stdin.on('readable', function(){
+					var input = process.stdin.read('sda');
+					if(input !== null){
+						var temp = input.substring(0, input.length-1);
+					}
+					if(temp == 'end'){
+						console.log('process.exit()');
+						process.exit();
+					}else if(input !== null){
+						console.log('代替輸入send to B: '+input);
+						pa[1]['data']['message'] = temp; //新增這行
+						message = JSON.stringify(pa); //新增這行
+						wsB.send(message);
+					}
+				});
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -125,22 +141,6 @@ async.parallel([
 			if (sender == 2) {
 				console.log("B：「 " + msg + " 」")
 				wsA.send(message);
-				process.stdin.setEncoding('utf8');
-				process.stdin.on('readable', function(){
-					var input = process.stdin.read('sda');
-					if(input !== null){
-						var temp = input.substring(0, input.length-1);
-					}
-					if(temp == 'end'){
-						console.log('process.exit()');
-						process.exit();
-					}else if(input !== null){
-						console.log('代替輸入send to B: '+input);
-						pa[1]['data']['message'] = temp; //新增這行
-						message = JSON.stringify(pa); //新增這行
-						wsB.send(message);
-					}
-				});
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
