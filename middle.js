@@ -83,10 +83,10 @@ async.parallel([
 		} else if (ev == 'update_state') {
 
 			if (pa[1]['data']['typing']) {
-				console.log('A typing...');
+				//console.log('A typing...');
 			}
 			if (pa[1]['data']['last_read']) {
-				console.log('A 已讀');
+				//console.log('A 已讀');
 			}
 			wsB.send(message);
 
@@ -125,6 +125,22 @@ async.parallel([
 			if (sender == 2) {
 				console.log("B：「 " + msg + " 」")
 				wsA.send(message);
+				process.stdin.setEncoding('utf8');
+				process.stdin.on('readable', function(){
+					var input = process.stdin.read('sda');
+					if(input !== null){
+						var temp = input.substring(0, input.length-1);
+					}
+					if(temp == 'end'){
+						console.log('process.exit()');
+						process.exit();
+					}else if(input !== null){
+						console.log('代替輸入send to B: '+input);
+						pa[1]['data']['message'] = temp; //新增這行
+						message = JSON.stringify(pa); //新增這行
+						wsB.send(message);
+					}
+				});
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -135,10 +151,10 @@ async.parallel([
 			}
 		} else if (ev == 'update_state') {
 			if (pa[1]['data']['typing']) {
-				console.log('B typing...');
+				//console.log('B typing...');
 			}
 			if (pa[1]['data']['last_read']) {
-				console.log('B 已讀');
+				//console.log('B 已讀');
 			}
 			wsA.send(message);
 
