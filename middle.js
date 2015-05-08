@@ -45,8 +45,42 @@ async.parallel([
 		headers: _.extend(wootalk_header, {
 			'Cookie': '_gat=1; _wootalk_session=' + results[1] + '; _ga=GA1.2.1804571589.1429605824; __asc=6c4424fc14ce5fe7639ea11437a; __auc=c71404c914cdb259f913b23fc5b'
 		})
+
 	});
 
+
+
+
+	var fakePaToA = null;
+	var fakePaToB = null;
+	process.stdin.setEncoding('utf8');
+	process.stdin.on('readable', function(){
+		var input = process.stdin.read();
+		var temp;
+		var fakeMessage;
+		if(input !== null){
+			var sendToWho = input.substring(0, 3);
+			var content =  input.substring(4, input.length-1);
+		}
+		if(sendToWho == 'end'){
+			console.log('process.exit()');
+			process.exit();
+		}else if(sendToWho == 'toa' && fakePaToA !== null){
+			console.log('代替輸入send to A: '+content);
+			temp = fakePaToA;
+			temp[1]['data']['message'] = content;
+			fakeMessage = JSON.stringify(temp);
+			wsB.send(fakeMessage);
+		}else if(sendToWho == 'tob' && fakePaToB !== null){
+			console.log('代替輸入send to B: '+content);
+			temp = fakePaToB;
+			temp[1]['data']['message'] = content;
+			fakeMessage = JSON.stringify(temp);
+			wsB.send(fakeMessage);
+		}else{
+			console.log('尚未取得足夠對話參數')
+		}
+	});
 
 
 	wsA.on('open', function() {
@@ -55,7 +89,7 @@ async.parallel([
 
 
 	wsA.on('message', function(message) {
-		// console.log(message)
+		//console.log(message)
 		var pa = JSON.parse(message)[0]; //parse
 		var ev = pa[0]; //event名字
 		/*
@@ -65,28 +99,12 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
-			pa[1]['data']['sender'] = 1; //新增這行
-			message = JSON.stringify(pa); //新增這行
+			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
+			message = JSON.stringify(pa);
 			// console.log(message)
 			if (sender == 2) {
-				console.log("A：「 " + msg + " 」")
-				wsB.send(message);
-				process.stdin.setEncoding('utf8');
-				process.stdin.on('readable', function(){
-					var input = process.stdin.read('sda');
-					if(input !== null){
-						var temp = input.substring(0, input.length-1);
-					}
-					if(temp == 'end'){
-						console.log('process.exit()');
-						process.exit();
-					}else if(input !== null){
-						console.log('代替輸入send to B: '+input);
-						pa[1]['data']['message'] = temp; //新增這行
-						message = JSON.stringify(pa); //新增這行
-						wsB.send(message);
-					}
-				});
+				fakePaToB = pa;//取得傳假話參數");
+				console.log("A：「 " + msg + " 」");
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -135,11 +153,12 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
-			pa[1]['data']['sender'] = 1; //新增這行
-			message = JSON.stringify(pa); //新增這行
+			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
+			message = JSON.stringify(pa);
 			// console.log(message)
 			if (sender == 2) {
-				console.log("B：「 " + msg + " 」")
+				fakePaToA = pa;//取得傳假話參數
+				console.log("B：「 " + msg + " 」\n");
 				wsA.send(message);
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
