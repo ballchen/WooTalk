@@ -1,0 +1,27 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/opt/nvm/versions/node/v0.12.2/bin/node',
+1 verbose cli   '/usr/local/opt/nvm/versions/node/v0.12.2/bin/npm',
+1 verbose cli   'start' ]
+2 info using npm@2.7.4
+3 info using node@v0.12.2
+4 verbose node symlink /usr/local/opt/nvm/versions/node/v0.12.2/bin/node
+5 verbose stack Error: missing script: start
+5 verbose stack     at run (/usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/lib/run-script.js:165:19)
+5 verbose stack     at /usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/lib/run-script.js:81:5
+5 verbose stack     at /usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:52:40
+5 verbose stack     at /usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:376:33
+5 verbose stack     at checkBinReferences_ (/usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:341:59)
+5 verbose stack     at final (/usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:373:17)
+5 verbose stack     at then (/usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:127:33)
+5 verbose stack     at /usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/read-package-json/read-json.js:332:40
+5 verbose stack     at evalmachine.<anonymous>:334:14
+5 verbose stack     at /usr/local/Cellar/nvm/0.23.3/versions/node/v0.12.2/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:102:5
+6 verbose cwd /Users/wwwcusaw/Documents/nodeapp/WooTalk
+7 error Darwin 13.4.0
+8 error argv "/usr/local/opt/nvm/versions/node/v0.12.2/bin/node" "/usr/local/opt/nvm/versions/node/v0.12.2/bin/npm" "start"
+9 error node v0.12.2
+10 error npm  v2.7.4
+11 error missing script: start
+12 error If you need help, you may report this error at:
+12 error     <https://github.com/npm/npm/issues>
+13 verbose exit [ 1, true ]

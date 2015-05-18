@@ -49,33 +49,43 @@ async.parallel([
 	});
 
 
+tob 安安 哪裡人
 
-
-	var fakePaToA = null;
-	var fakePaToB = null;
+	var userId_A = null;
+	var userId_B = null;
 	process.stdin.setEncoding('utf8');
 	process.stdin.on('readable', function(){
 		var input = process.stdin.read();
-		var temp;
+		//var temp;
 		var fakeMessage;
-		if(input !== null){
+		//var sample = ["new_message",{"id":null,"channel":null,"user_id":845609,"data":{"sender":1,"message":"å®å®","time":1431750704164,"msg_id":1},"success":null,"result":null,"token":null,"server_token":null}];
+		var sample = ["new_message",{"id":null,"channel":null,"user_id":876225,"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null},"success":null,"result":null,"token":null,"server_token":null}];
+		if(input){
 			var sendToWho = input.substring(0, 3);
 			var content =  input.substring(4, input.length-1);
 		}
 		if(sendToWho == 'end'){
 			console.log('process.exit()');
 			process.exit();
-		}else if(sendToWho == 'toa' && fakePaToA !== null){
+		}else if(sendToWho == 'toa' && userId_A !== null){
+			console.log('發話給A用的user_id: '+userId_A);
 			console.log('代替輸入send to A: '+content);
-			temp = fakePaToA;
-			temp[1]['data']['message'] = content;
-			fakeMessage = JSON.stringify(temp);
-			wsB.send(fakeMessage);
-		}else if(sendToWho == 'tob' && fakePaToB !== null){
+			//temp = fakePaToA;
+			sample[1]['user_id'] = userId_A;
+			sample[1]['data']['message'] = content;
+			//temp[1]['data']['message'] = content;
+			fakeMessage = JSON.stringify(sample);
+			console.log(fakeMessage);
+			wsA.send(fakeMessage);
+		}else if(sendToWho == 'tob' && userId_B !== null){
+			console.log('發話給B用的user_id: '+userId_B);
 			console.log('代替輸入send to B: '+content);
-			temp = fakePaToB;
-			temp[1]['data']['message'] = content;
-			fakeMessage = JSON.stringify(temp);
+			//temp = fakePaToB;
+			sample[1]['user_id'] = userId_B;
+			sample[1]['data']['message'] = content;
+			//temp[1]['data']['message'] = content;
+			fakeMessage = JSON.stringify(sample);
+			console.log(fakeMessage);
 			wsB.send(fakeMessage);
 		}else{
 			console.log('尚未取得足夠對話參數')
@@ -99,12 +109,19 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
+			//console.log(message)
+			if( pa[1]['user_id'] ){
+				userId_A = pa[1]['user_id'];
+
+				//console.log(message);
+			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
-			// console.log(message)
 			if (sender == 2) {
-				fakePaToB = pa;//取得傳假話參數");
+				//fakePaToB = pa;//取得傳假話參數");
 				console.log("A：「 " + msg + " 」");
+				console.log(message);
+				wsB.send(message);
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -153,12 +170,16 @@ async.parallel([
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
 		if (ev == 'new_message') {
+			//console.log(message)
+			if( pa[1]['user_id'] ){
+				userId_B = pa[1]['user_id'];
+			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
-			// console.log(message)
 			if (sender == 2) {
-				fakePaToA = pa;//取得傳假話參數
+				//fakePaToA = pa;//取得傳假話參數
 				console.log("B：「 " + msg + " 」\n");
+				console.log(message);
 				wsA.send(message);
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
