@@ -1,6 +1,7 @@
 var async = require('async');
 var request = require('request');
 var _ = require('underscore');
+var ent = require('ent');
 var url = 'https://wootalk.today/';
 var WebSocket = require('ws');
 var wootalk_header = {
@@ -87,9 +88,13 @@ async.parallel([
 		/*
 			client_connected, new_message, websocket_rails.ping, update_state
 		*/
+		if(pa[1]['data']['message']){
+			pa[1]['data']['message'] = ent.decode(pa[1]['data']['message']);//html entity
+		}
 		var msg = pa[1]['data']['message'];
 		var sender = pa[1]['data']['sender']; //0 是系統, 1是自己, 2是對方
 		var leave = pa[1]['data']['leave']; //若對方leave, 要寄給系統["change_person",{}]
+		//console.log(pa[1]['data']['message']);
 		if (ev == 'new_message') {
 			//console.log(message)
 			if( pa[1]['user_id'] ){
