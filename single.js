@@ -60,14 +60,14 @@ async.parallel([
 			wsA.send(leavecmd);
 			process.exit();
 		}else if( userId_A ){ //sendToWho == 'toa' &&
-			console.log('發話給A用的user_id: '+userId_A);
-			console.log('代替輸入send to A: '+content);
+			//console.log('發話給A用的user_id: '+userId_A);
+			//console.log('代替輸入send to A: '+content);
 			//temp = fakePaToA;
 			sample[1]['user_id'] = userId_A;
 			sample[1]['data']['message'] = content;
 			//temp[1]['data']['message'] = content;
 			fakeMessage = JSON.stringify(sample);
-			console.log(fakeMessage);
+			//console.log(fakeMessage);
 			wsA.send(fakeMessage);
 		}else{
 			console.log('尚未取得足夠對話參數')
@@ -102,7 +102,7 @@ async.parallel([
 			if (sender == 2) {
 				//fakePaToB = pa;//取得傳假話參數");
 				console.log("A：「 " + msg + " 」");
-				console.log(message);
+				//console.log(message);
 				//wsB.send(message);
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
