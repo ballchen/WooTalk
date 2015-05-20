@@ -50,7 +50,8 @@ async.parallel([
 		//var temp;
 		var fakeMessage;
 		//var sample = ["new_message",{"id":null,"channel":null,"user_id":845609,"data":{"sender":1,"message":"å®å®","time":1431750704164,"msg_id":1},"success":null,"result":null,"token":null,"server_token":null}];
-		var sample = ["new_message",{"id":null,"channel":null,"user_id":876225,"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null},"success":null,"result":null,"token":null,"server_token":null}];
+		//var sample = ["new_message",{"id":null,"channel":null,"user_id":876225,"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null},"success":null,"result":null,"token":null,"server_token":null}];
+		var sample = ["new_message",{"id":73255,"data":{"message":"åªè£¡äººå","msg_id":2}}];
 		if(input){
 			//var sendToWho = input.substring(0, 3);
 			//var content =  input.substring(4, input.length-1);
@@ -64,7 +65,7 @@ async.parallel([
 			//console.log('發話給A用的user_id: '+userId_A);
 			//console.log('代替輸入send to A: '+content);
 			//temp = fakePaToA;
-			sample[1]['user_id'] = userId_A;
+			//sample[1]['user_id'] = userId_A;
 			sample[1]['data']['message'] = content;
 			//temp[1]['data']['message'] = content;
 			fakeMessage = JSON.stringify(sample);
@@ -88,7 +89,7 @@ async.parallel([
 		/*
 			client_connected, new_message, websocket_rails.ping, update_state
 		*/
-		if(pa[1]['data']['message']){
+		if(pa[1]['data']['message']){//avoid undefined
 			pa[1]['data']['message'] = ent.decode(pa[1]['data']['message']);//html entity
 		}
 		var msg = pa[1]['data']['message'];
