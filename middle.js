@@ -125,7 +125,7 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_A = pa[1]['user_id'];//取得和A之間的user_id
-				if (flagA_first || flagB_first ){
+				if (flagA_first){
 					console.log('Aid: '+userId_A);
 					flagA_first=false;
 				}
@@ -192,7 +192,7 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_B = pa[1]['user_id'];//取得和B之間的user_id
-				if (flagA_first || flagB_first){
+				if (flagB_first){
 					console.log('Bid: '+userId_B);
 					flagB_first=false;
 				}
