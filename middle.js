@@ -22,8 +22,8 @@ var Randomize = function() {
 };
 
 var leavecmd = '["change_person",{}]';
-
-
+var flagA_first=true;
+var flagB_first=true;
 async.parallel([
 	function(cb) {
 		request.get(url, function(error, response, body) {
@@ -32,8 +32,6 @@ async.parallel([
 		});
 	},
 	function(cb) {
-	
-		sleep.sleep(2);
 		request.get(url, function(error, response, body) {
 			var session = response.headers['set-cookie'][0].match(/_wootalk_session=(\w+)/)[1];
 			cb(null, session);
@@ -45,6 +43,7 @@ async.parallel([
 			'Cookie': '_gat=1; _wootalk_session=' + results[0] + '; _ga=GA1.2.1804571589.1429605824; __asc=6c4424fc14ce5fe7639ea11437a; __auc=c71404c914cdb259f913b23fc5b'
 		})
 	});
+	sleep.sleep(5);
 	wsB = new WebSocket('wss://wootalk.today/websocket', [], {
 		headers: _.extend(wootalk_header, {
 			'Cookie': '_gat=1; _wootalk_session=' + results[1] + '; _ga=GA1.2.1804571589.1429605824; __asc=6c4424fc14ce5fe7639ea11437a; __auc=c71404c914cdb259f913b23fc5b'
@@ -126,7 +125,10 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_A = pa[1]['user_id'];//取得和A之間的user_id
-				console.log('Aid: '+userId_A);
+				if (flagA_first || flagB_first ){
+					console.log('Aid: '+userId_A);
+					flagA_first=false;
+				}
 			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
@@ -190,7 +192,10 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_B = pa[1]['user_id'];//取得和B之間的user_id
-				console.log('Bid: '+userId_B);
+				if (flagA_first || flagB_first){
+					console.log('Bid: '+userId_B);
+					flagB_first=false;
+				}
 			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
