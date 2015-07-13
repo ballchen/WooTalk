@@ -4,6 +4,7 @@ var _ = require('underscore');
 var ent = require('ent');
 var url = 'https://wootalk.today/';
 var WebSocket = require('ws');
+var sleep = require('sleep');
 var wootalk_header = {
 	'Host': 'wootalk.today',
 	'Origin': 'https://wootalk.today',
@@ -31,6 +32,8 @@ async.parallel([
 		});
 	},
 	function(cb) {
+	
+		sleep.sleep(2);
 		request.get(url, function(error, response, body) {
 			var session = response.headers['set-cookie'][0].match(/_wootalk_session=(\w+)/)[1];
 			cb(null, session);
@@ -52,11 +55,14 @@ async.parallel([
 
 	var userId_A = null;
 	var userId_B = null;
+	var flagA = false;
 	process.stdin.setEncoding('utf8');
 	process.stdin.on('readable', function(){
 		var input = process.stdin.read();
 		//var temp;
 		var fakeMessage;
+		
+
 		//var sample = ["new_message",{"id":null,"channel":null,"user_id":845609,"data":{"sender":1,"message":"å®å®","time":1431750704164,"msg_id":1},"success":null,"result":null,"token":null,"server_token":null}];
 		var sample = ["new_message",{"id":null,"channel":null,"user_id":876225,"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null},"success":null,"result":null,"token":null,"server_token":null}];
 		if(input){
@@ -66,32 +72,43 @@ async.parallel([
 		if(sendToWho == 'end'){
 			console.log('process.exit()');
 			process.exit();
-		}else if(sendToWho == 'toa' && userId_A ){
+		}else if(sendToWho == 'toa' && userId_A){
 			//console.log('發話給A用的user_id: '+userId_A);
-			console.log('代替輸入send to A: '+content);
-			sample[1]['user_id'] = userId_A;
-			sample[1]['data']['message'] = content;
-			fakeMessage = JSON.stringify(sample);
-			//console.log(fakeMessage);
-			wsA.send(fakeMessage);
-		}else if(sendToWho == 'tob' && userId_B ){
+				console.log('代替輸入send to A: '+content);
+				sample[1]['user_id'] = userId_A;
+				sample[1]['data']['message'] = content;
+				fakeMessage = JSON.stringify(sample);
+				//console.log(fakeMessage);
+				wsA.send(fakeMessage);
+			
+		}else if(sendToWho == 'tob' && userId_B){
 			//console.log('發話給B用的user_id: '+userId_B);
-			console.log('代替輸入send to B: '+content);
-			sample[1]['user_id'] = userId_B;
-			sample[1]['data']['message'] = content;
-			fakeMessage = JSON.stringify(sample);
-			//console.log(fakeMessage);
-			wsB.send(fakeMessage);
-		}else{
+			
+				console.log('代替輸入send to B: '+content);
+				sample[1]['user_id'] = userId_B;
+				sample[1]['data']['message'] = content;
+				fakeMessage = JSON.stringify(sample);
+				//console.log(fakeMessage);
+				wsB.send(fakeMessage);
+			
+
+			
+		}else if(sendToWho === 'zzz'){
+			console.log("kick all");
+			flagA = true;
+		}
+		else{
 			console.log('尚未取得足夠對話參數')
 		}
 	});
 
 
 	wsA.on('open', function() {
-		// console.log('A connected!');
+		console.log('A connected!');
 	});
-
+	wsA.on('close', function close(){
+		console.log('A disconnected');
+	});
 
 	wsA.on('message', function(message) {
 		//console.log(message)
@@ -109,13 +126,16 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_A = pa[1]['user_id'];//取得和A之間的user_id
+				console.log('Aid: '+userId_A);
 			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」");
 				//console.log(message);
-				wsB.send(message);
+				if(flagA==false){
+					wsB.send(message);
+				}
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -136,7 +156,7 @@ async.parallel([
 			wsB.send(message);
 
 
-		} else if (ev == 'websocket_rails.ping') {
+		}else if (ev == 'websocket_rails.ping') {
 			a = Randomize();
 			wsA.send('["websocket_rails.pong",{"id":' + Randomize() + ',"data":{}}]')
 		} else if (ev == 'client_connected') {
@@ -145,14 +165,15 @@ async.parallel([
 		}
 	});
 
-	wsA.on('close', function() {
-		console.log('A disconnected');
-	});
+	
 
 
 
 	wsB.on('open', function() {
-		// console.log('B connected!');
+		console.log('B connected!');
+	});
+	wsB.on('close', function close() {
+		console.log('B disconnected');
 	});
 	wsB.on('message', function(message) {
 		var pa = JSON.parse(message)[0]; //parse
@@ -169,13 +190,16 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_B = pa[1]['user_id'];//取得和B之間的user_id
+				console.log('Bid: '+userId_B);
 			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
 			if (sender == 2) {
 				console.log("B：「 " + msg + " 」\n");
 				//console.log(message);
-				wsA.send(message);
+				if (flagA == false){
+					wsA.send(message);
+				}
 			} else if (!sender && leave) {
 				//leave == false 是初始系統提示訊息的時候, 其餘時候都是undefined
 				//change person 或 disconnected
@@ -204,8 +228,6 @@ async.parallel([
 		}
 	});
 
-	wsB.on('close', function() {
-		// console.log('B disconnected');
-	});
+
 
 });
